@@ -1,10 +1,9 @@
-// Firebase 設定值：到 Firebase 控制台「專案設定 → 您的應用程式 → SDK 設定」複製後貼上
-// 這些值本來就會公開在前端，安全性靠 Firestore 規則把關
+// Firebase 設定值（本來就會公開在前端，安全性靠 Firestore 規則把關）
 export const firebaseConfig = {
-  apiKey: "PASTE_HERE",
-  authDomain: "PASTE_HERE",
-  projectId: "PASTE_HERE",
-  storageBucket: "PASTE_HERE",
-  messagingSenderId: "PASTE_HERE",
-  appId: "PASTE_HERE",
+  apiKey: "AIzaSyDRPIfEUcSlLR8SPy8AuVmH-mRQrCO3Nio",
+  authDomain: "novel-bookmarks.firebaseapp.com",
+  projectId: "novel-bookmarks",
+  storageBucket: "novel-bookmarks.firebasestorage.app",
+  messagingSenderId: "927652303299",
+  appId: "1:927652303299:web:72ce390235855190f9ad76",
 };
