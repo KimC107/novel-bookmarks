@@ -99,13 +99,32 @@ try {
 function openPendingAdd() {
   let p;
   try { p = JSON.parse(sessionStorage.getItem("pendingAdd")); sessionStorage.removeItem("pendingAdd"); } catch { return; }
-  if (!p) return;
+  if (p) openPrefilled(p);
+}
+
+// 開啟新增表單並預填書名與連結
+function openPrefilled(p) {
   openEdit(null);
   const f = $("#editForm").elements;
   f.title.value = p.title;
   // 分享的頁面多半是章節頁，網站連結與章節連結都先填入，使用者可自行修改
   if (safeUrl(p.url)) { f.siteUrl.value = p.url; f.chapterUrl.value = p.url; }
   f.status.value = "在看";
+}
+
+// 📋 從剪貼簿新增：剪貼簿內容可以是「標題＋換行＋網址」，也可以只有網址
+async function addFromClipboard() {
+  let text = "";
+  try {
+    text = await navigator.clipboard.readText(); // iOS 會跳出「貼上」確認
+  } catch {
+    // 瀏覽器不允許讀取剪貼簿時，改讓使用者手動貼上
+    text = prompt("無法自動讀取剪貼簿，請貼上網址（可含標題）：") || "";
+  }
+  const m = text.match(/https?:\/\/\S+/);
+  if (!m) { if (text) alert("剪貼簿裡沒有找到網址"); return; }
+  const title = text.replace(m[0], "").trim().split("\n")[0].trim();
+  openPrefilled({ url: m[0], title });
 }
 
 // ---------- 畫面 ----------
@@ -247,6 +266,7 @@ $("#searchInput").oninput = (e) => { state.q = e.target.value; render(); };
 $("#sortSelect").onchange = (e) => { state.sort = e.target.value; render(); };
 $("#addBtn").onclick = () => openEdit(null);
 $("#menuBtn").onclick = () => $("#menuDlg").showModal();
+$("#pasteBtn").onclick = addFromClipboard;
 
 // 所有對話框的「取消／關閉」按鈕
 document.querySelectorAll("[data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
