@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>小說書簽</title>
+  <meta name="theme-color" content="#1f2937">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="小說書簽">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 登入畫面 -->
+  <section id="loginView" class="login hidden">
+    <h1>📚 小說書簽</h1>
+    <p>管理你想看的小說與閱讀進度</p>
+    <button id="loginBtn" class="btn primary">使用 Google 登入</button>
+    <p id="loginMsg" class="msg"></p>
+  </section>
+
+  <!-- 主畫面 -->
+  <main id="appView" class="hidden">
+    <header class="topbar">
+      <h1>📚 小說書簽</h1>
+      <div class="topbar-actions">
+        <button id="menuBtn" class="icon-btn" aria-label="選單">⋯</button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <input id="searchInput" type="search" placeholder="搜尋書名或作者">
+      <select id="sortSelect">
+        <option value="lastReadAt">最近閱讀</option>
+        <option value="createdAt">最近新增</option>
+        <option value="rating">評分高到低</option>
+        <option value="title">書名</option>
+      </select>
+    </div>
+
+    <nav id="tabs" class="tabs"></nav>
+    <div id="tagBar" class="tagbar"></div>
+
+    <ul id="list" class="list"></ul>
+    <p id="empty" class="empty hidden">這裡還沒有小說</p>
+
+    <button id="addBtn" class="fab" aria-label="新增小說">＋</button>
+  </main>
+
+  <!-- 選單 -->
+  <dialog id="menuDlg">
+    <div class="dlg-body">
+      <p id="userInfo" class="muted"></p>
+      <button id="exportBtn" class="btn">匯出 JSON 備份</button>
+      <button id="logoutBtn" class="btn">登出</button>
+      <button class="btn" data-close>關閉</button>
+    </div>
+  </dialog>
+
+  <!-- 新增／編輯 -->
+  <dialog id="editDlg">
+    <form id="editForm" class="dlg-body">
+      <h2 id="editTitle">新增小說</h2>
+      <label>書名 *<input name="title" required></label>
+      <label>作者<input name="author"></label>
+      <label>網站連結<input name="siteUrl" type="url" inputmode="url" placeholder="https://"></label>
+      <label>目前章節名稱<input name="chapterName"></label>
+      <label>章節連結<input name="chapterUrl" type="url" inputmode="url" placeholder="https://"></label>
+      <label>狀態
+        <select name="status">
+          <option>想看</option><option>在看</option><option>看完</option><option>棄坑</option>
+        </select>
+      </label>
+      <label>評分
+        <select name="rating">
+          <option value="0">未評分</option>
+          <option value="1">★</option><option value="2">★★</option><option value="3">★★★</option>
+          <option value="4">★★★★</option><option value="5">★★★★★</option>
+        </select>
+      </label>
+      <label>標籤（用逗號分隔）<input name="tags" placeholder="玄幻, 完結"></label>
+      <label>備註<textarea name="note" rows="3"></textarea></label>
+      <div class="row">
+        <button type="button" id="deleteBtn" class="btn danger hidden">刪除</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>取消</button>
+        <button type="submit" class="btn primary">儲存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 更新進度 -->
+  <dialog id="progressDlg">
+    <form id="progressForm" class="dlg-body">
+      <h2 id="progressTitle">更新進度</h2>
+      <label>新章節連結<input name="chapterUrl" type="url" inputmode="url" placeholder="https://" required></label>
+      <label>章節名稱<input name="chapterName"></label>
+      <div class="row">
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>取消</button>
+        <button type="submit" class="btn primary">儲存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
