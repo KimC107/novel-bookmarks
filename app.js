@@ -177,9 +177,11 @@ function render() {
         </div>
         <div class="rating">${"★".repeat(n.rating || 0)}</div>
       </div>
-      <div class="chapter">${n.chapterName ? "📖 " + esc(n.chapterName) : '<span class="muted">尚無章節進度</span>'}</div>
-      <div class="chips">${(n.tags || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join("")}</div>
-      ${n.note ? `<div class="card-sub" style="margin-bottom:8px">${esc(n.note)}</div>` : ""}
+      <div class="meta">
+        ${n.chapterName ? `<span class="chapter">📖 ${esc(n.chapterName)}</span>` : ""}
+        ${(n.tags || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join("")}
+      </div>
+      ${n.note ? `<div class="note">${esc(n.note)}</div>` : ""}
       <div class="card-actions">
         <button class="btn primary" data-act="read" ${canRead ? "" : "disabled"}>繼續閱讀</button>
         <button class="btn" data-act="progress">更新進度</button>
