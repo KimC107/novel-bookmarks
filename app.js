@@ -77,7 +77,36 @@ function initDemo() {
 }
 
 function showLogin() { $("#loginView").classList.remove("hidden"); $("#appView").classList.add("hidden"); }
-function showApp() { $("#loginView").classList.add("hidden"); $("#appView").classList.remove("hidden"); render(); }
+function showApp() {
+  $("#loginView").classList.add("hidden");
+  $("#appView").classList.remove("hidden");
+  render();
+  openPendingAdd();
+}
+
+// ---------- iOS 捷徑：網址參數帶入新增 ----------
+// 捷徑開啟 ?add=<網址>&title=<標題>，先暫存到 sessionStorage 並清掉網址列，
+// 這樣即使要先登入（頁面重新載入）參數也不會遺失
+try {
+  const qs = new URLSearchParams(location.search);
+  if (qs.has("add")) {
+    sessionStorage.setItem("pendingAdd", JSON.stringify({ url: qs.get("add"), title: qs.get("title") || "" }));
+    history.replaceState(null, "", location.pathname);
+  }
+} catch { /* 瀏覽器禁用儲存時忽略，只是不會預填 */ }
+
+// 登入完成、進入主畫面後，開啟預填好的新增表單
+function openPendingAdd() {
+  let p;
+  try { p = JSON.parse(sessionStorage.getItem("pendingAdd")); sessionStorage.removeItem("pendingAdd"); } catch { return; }
+  if (!p) return;
+  openEdit(null);
+  const f = $("#editForm").elements;
+  f.title.value = p.title;
+  // 分享的頁面多半是章節頁，網站連結與章節連結都先填入，使用者可自行修改
+  if (safeUrl(p.url)) { f.siteUrl.value = p.url; f.chapterUrl.value = p.url; }
+  f.status.value = "在看";
+}
 
 // ---------- 畫面 ----------
 function esc(s) {
