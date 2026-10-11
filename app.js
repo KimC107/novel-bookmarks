@@ -1,12 +1,15 @@
 import { firebaseConfig } from "./firebase-config.js";
 
 const FB = "https://www.gstatic.com/firebasejs/10.12.2";
-const STATUSES = ["在看", "想看", "看完", "棄坑"];
+const STATUSES = ["進行", "追更", "未看", "已閱", "棄坑"];
+// 舊版狀態名稱 → 新版（既有資料會自動轉換並寫回）
+const LEGACY_STATUS = { "在看": "進行", "想看": "未看", "看完": "已閱" };
+const normalize = (n) => (LEGACY_STATUS[n.status] ? { ...n, status: LEGACY_STATUS[n.status] } : n);
 // 設定值還是預留字樣 → 進入本機示範模式（資料只存瀏覽器，不同步，僅供開發測試）
 const DEMO = firebaseConfig.apiKey === "PASTE_HERE";
 
 const $ = (s) => document.querySelector(s);
-const state = { novels: [], tab: "在看", tag: "", q: "", sort: "lastReadAt", editId: null, progressId: null };
+const state = { novels: [], tab: "進行", tag: "", q: "", sort: "lastReadAt", editId: null, progressId: null };
 let store; // 資料層：{ save(id, data), remove(id) }，變動時呼叫 onData
 
 // ---------- 資料層：Firebase ----------
@@ -47,7 +50,9 @@ async function initFirebase() {
     };
     // 即時監聽，其他裝置有改動會馬上更新
     fs.onSnapshot(col, (snap) => {
-      state.novels = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const raw = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      state.novels = raw.map(normalize);
+      raw.filter((n) => LEGACY_STATUS[n.status]).forEach((n) => store.save(n.id, { status: LEGACY_STATUS[n.status] }));
       render();
     });
     showApp();
@@ -60,7 +65,7 @@ function initDemo() {
   const KEY = "novel-bookmarks-demo";
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
   const persist = () => localStorage.setItem(KEY, JSON.stringify(state.novels));
-  state.novels = load();
+  state.novels = load().map(normalize);
   store = {
     save: async (id, data) => {
       const i = state.novels.findIndex((n) => n.id === id);
@@ -109,7 +114,7 @@ function openPrefilled(p) {
   f.title.value = p.title;
   // 分享的頁面多半是章節頁，網站連結與章節連結都先填入，使用者可自行修改
   if (safeUrl(p.url)) { f.siteUrl.value = p.url; f.chapterUrl.value = p.url; }
-  f.status.value = "在看";
+  f.status.value = "進行";
 }
 
 // 📋 從剪貼簿新增：剪貼簿內容可以是「標題＋換行＋網址」，也可以只有網址
@@ -160,11 +165,12 @@ function render() {
     (!q || `${n.title} ${n.author || ""}`.toLowerCase().includes(q))
   );
   const by = state.sort;
-  rows.sort((a, b) =>
+  const cmp = (a, b) =>
     by === "title" ? a.title.localeCompare(b.title, "zh-Hant")
     : by === "rating" ? (b.rating || 0) - (a.rating || 0)
-    : ts(b[by]) - ts(a[by])
-  );
+    : ts(b[by]) - ts(a[by]);
+  // 已閱分頁固定先依星級多到少排，同星級再用所選排序
+  rows.sort((a, b) => (state.tab === "已閱" ? (b.rating || 0) - (a.rating || 0) : 0) || cmp(a, b));
 
   $("#empty").classList.toggle("hidden", rows.length > 0);
   $("#list").innerHTML = rows.map((n) => {
@@ -206,7 +212,7 @@ function openEdit(id) {
     for (const k of ["title", "author", "siteUrl", "chapterName", "chapterUrl", "status", "rating", "note"]) f.elements[k].value = n[k] ?? "";
     f.elements.tags.value = (n.tags || []).join(", ");
   } else {
-    f.elements.status.value = STATUSES.includes(state.tab) ? state.tab : "想看";
+    f.elements.status.value = STATUSES.includes(state.tab) ? state.tab : "未看";
   }
   $("#editDlg").showModal();
 }
@@ -257,8 +263,8 @@ $("#list").onclick = async (e) => {
   if (btn.dataset.act === "read") {
     const url = safeUrl(n.chapterUrl) || safeUrl(n.siteUrl);
     window.open(url, "_blank", "noopener");
-    // 想看的書開始閱讀後自動轉成在看
-    await store.save(id, { lastReadAt: now(), ...(n.status === "想看" ? { status: "在看" } : {}) });
+    // 未看的書開始閱讀後自動轉成進行
+    await store.save(id, { lastReadAt: now(), ...(n.status === "未看" ? { status: "進行" } : {}) });
   }
 };
 

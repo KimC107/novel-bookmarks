@@ -32,8 +32,8 @@ input, select, textarea {
   background: var(--card); border: 1px solid var(--line); border-radius: 8px;
 }
 
-.tabs { display: flex; gap: 6px; padding: 0 16px 6px; overflow-x: auto; }
-.tab { flex: none; padding: 3px 12px; font-size: .9rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
+.tabs { display: flex; gap: 4px; padding: 0 16px 6px; overflow-x: auto; }
+.tab { flex: none; padding: 3px 9px; font-size: .85rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
 .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 .tagbar { display: flex; gap: 6px; padding: 0 16px 6px; overflow-x: auto; }
 .tagbar:empty { display: none; }

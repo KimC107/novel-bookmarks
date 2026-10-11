@@ -15,7 +15,7 @@ python3 -m http.server 8765
 
 ## 資料結構
 
-`users/{uid}/novels/{id}`：title, author, siteUrl, chapterName, chapterUrl, status(想看/在看/看完/棄坑), rating(0-5), tags[], note, createdAt, lastReadAt
+`users/{uid}/novels/{id}`：title, author, siteUrl, chapterName, chapterUrl, status(進行/追更/未看/已閱/棄坑；舊值在看/想看/看完會自動轉換), rating(0-5), tags[], note, createdAt, lastReadAt
 
 ## 部署
 
