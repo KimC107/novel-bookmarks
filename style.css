@@ -22,6 +22,10 @@ h1 { font-size: 1.2rem; margin: 0; }
 
 /* 頂部列（避開 iOS 瀏海） */
 .topbar { display: flex; justify-content: space-between; align-items: center; padding: calc(env(safe-area-inset-top) + 8px) 16px 4px; }
+/* 小說／漫畫 分段切換 */
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-left: auto; margin-right: 6px; }
+.seg button { border: 0; background: var(--card); color: var(--muted); font: inherit; font-size: .85rem; padding: 3px 12px; cursor: pointer; }
+.seg button.active { background: var(--accent); color: #fff; }
 .icon-btn { background: none; border: 0; color: var(--text); font-size: 1.4rem; padding: 2px 8px; cursor: pointer; }
 
 .toolbar { display: flex; gap: 6px; padding: 0 16px 6px; }

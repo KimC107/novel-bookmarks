@@ -1,6 +1,6 @@
 {
-  "name": "小說書簽",
-  "short_name": "小說書簽",
+  "name": "愛好書簽",
+  "short_name": "愛好書簽",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

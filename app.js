@@ -1,15 +1,21 @@
 import { firebaseConfig } from "./firebase-config.js";
 
 const FB = "https://www.gstatic.com/firebasejs/10.12.2";
+const TYPES = ["小說", "漫畫"];
 const STATUSES = ["進行", "追更", "未看", "已閱", "棄坑"];
 // 舊版狀態名稱 → 新版（既有資料會自動轉換並寫回）
 const LEGACY_STATUS = { "在看": "進行", "想看": "未看", "看完": "已閱" };
-const normalize = (n) => (LEGACY_STATUS[n.status] ? { ...n, status: LEGACY_STATUS[n.status] } : n);
+const normalize = (n) => ({ ...n, type: n.type || "小說", status: LEGACY_STATUS[n.status] || n.status });
 // 設定值還是預留字樣 → 進入本機示範模式（資料只存瀏覽器，不同步，僅供開發測試）
 const DEMO = firebaseConfig.apiKey === "PASTE_HERE";
 
+// 記住上次選的類型（瀏覽器禁用儲存時忽略）
+function loadType() {
+  try { const t = localStorage.getItem("bookmarkType"); return TYPES.includes(t) ? t : "小說"; } catch { return "小說"; }
+}
+
 const $ = (s) => document.querySelector(s);
-const state = { novels: [], tab: "進行", tag: "", q: "", sort: "lastReadAt", editId: null, progressId: null };
+const state = { novels: [], type: loadType(), tab: "進行", tag: "", q: "", sort: "lastReadAt", editId: null, progressId: null };
 let store; // 資料層：{ save(id, data), remove(id) }，變動時呼叫 onData
 
 // ---------- 資料層：Firebase ----------
@@ -146,14 +152,17 @@ function fmtDate(ms) {
 }
 
 function render() {
+  // 小說／漫畫切換
+  $("#typeSwitch").innerHTML = TYPES.map((t) => `<button class="${t === state.type ? "active" : ""}" data-type="${t}">${t}</button>`).join("");
+  const ofType = state.novels.filter((n) => n.type === state.type);
   // 分頁（顯示各狀態數量）
   $("#tabs").innerHTML = STATUSES.map((s) => {
-    const n = state.novels.filter((x) => x.status === s).length;
+    const n = ofType.filter((x) => x.status === s).length;
     return `<button class="tab ${s === state.tab ? "active" : ""}" data-tab="${s}">${s} ${n}</button>`;
   }).join("");
 
   // 目前分頁內的所有標籤
-  const inTab = state.novels.filter((n) => n.status === state.tab);
+  const inTab = ofType.filter((n) => n.status === state.tab);
   const tags = [...new Set(inTab.flatMap((n) => n.tags || []))];
   if (state.tag && !tags.includes(state.tag)) state.tag = "";
   $("#tagBar").innerHTML = tags.map((t) => `<button class="tag ${t === state.tag ? "active" : ""}" data-tag="${esc(t)}">#${esc(t)}</button>`).join("");
@@ -205,14 +214,15 @@ function openEdit(id) {
   const f = $("#editForm");
   state.editId = id;
   const n = id ? state.novels.find((x) => x.id === id) : null;
-  $("#editTitle").textContent = n ? "編輯小說" : "新增小說";
+  $("#editTitle").textContent = n ? "編輯作品" : "新增作品";
   $("#deleteBtn").classList.toggle("hidden", !n);
   f.reset();
   if (n) {
-    for (const k of ["title", "author", "siteUrl", "chapterName", "chapterUrl", "status", "rating", "note"]) f.elements[k].value = n[k] ?? "";
+    for (const k of ["type", "title", "author", "siteUrl", "chapterName", "chapterUrl", "status", "rating", "note"]) f.elements[k].value = n[k] ?? "";
     f.elements.tags.value = (n.tags || []).join(", ");
   } else {
     f.elements.status.value = STATUSES.includes(state.tab) ? state.tab : "未看";
+    f.elements.type.value = state.type;
   }
   $("#editDlg").showModal();
 }
@@ -222,7 +232,7 @@ $("#editForm").onsubmit = async (e) => {
   const f = e.target.elements;
   const id = state.editId || ids.newId();
   const data = {
-    title: f.title.value.trim(), author: f.author.value.trim(),
+    type: f.type.value, title: f.title.value.trim(), author: f.author.value.trim(),
     siteUrl: f.siteUrl.value.trim(), chapterName: f.chapterName.value.trim(),
     chapterUrl: f.chapterUrl.value.trim(), status: f.status.value,
     rating: Number(f.rating.value), note: f.note.value.trim(),
@@ -231,7 +241,8 @@ $("#editForm").onsubmit = async (e) => {
   };
   if (!state.editId) { data.createdAt = now(); data.lastReadAt = 0; }
   $("#editDlg").close();
-  state.tab = data.status; // 儲存後跳到該狀態分頁，才看得到剛存的書
+  state.tab = data.status; // 儲存後跳到該類型與狀態分頁，才看得到剛存的書
+  setType(data.type);
   await store.save(id, data);
 };
 
@@ -268,6 +279,11 @@ $("#list").onclick = async (e) => {
   }
 };
 
+function setType(t) {
+  state.type = t;
+  try { localStorage.setItem("bookmarkType", t); } catch { /* 忽略 */ }
+}
+$("#typeSwitch").onclick = (e) => { const t = e.target.dataset.type; if (t) { setType(t); state.tag = ""; render(); } };
 $("#tabs").onclick = (e) => { const t = e.target.dataset.tab; if (t) { state.tab = t; render(); } };
 $("#tagBar").onclick = (e) => { const t = e.target.dataset.tag; if (t !== undefined) { state.tag = state.tag === t ? "" : t; render(); } };
 $("#searchInput").oninput = (e) => { state.q = e.target.value; render(); };
@@ -283,7 +299,7 @@ $("#exportBtn").onclick = () => {
   const blob = new Blob([JSON.stringify(state.novels, null, 2)], { type: "application/json" });
   const a = Object.assign(document.createElement("a"), {
     href: URL.createObjectURL(blob),
-    download: `novel-bookmarks-${new Date().toISOString().slice(0, 10)}.json`,
+    download: `hobby-bookmarks-${new Date().toISOString().slice(0, 10)}.json`,
   });
   a.click();
   URL.revokeObjectURL(a.href);
@@ -291,4 +307,12 @@ $("#exportBtn").onclick = () => {
 
 // ---------- 啟動 ----------
 ids = DEMO ? initDemo() : await initFirebase();
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+if ("serviceWorker" in navigator) {
+  if (["localhost", "127.0.0.1"].includes(location.hostname)) {
+    // 本機開發不使用 Service Worker，並清掉先前註冊的，避免測試時吃到舊快取
+    navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister()));
+    caches.keys().then((ks) => ks.forEach((k) => caches.delete(k)));
+  } else {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+}

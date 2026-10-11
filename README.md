@@ -1,6 +1,6 @@
-# 小說書簽 PWA
+# 愛好書簽 PWA
 
-管理想看的小說與閱讀進度，iOS / Mac / Android 透過 Firebase 同步。純靜態檔，無需 build。
+管理小說與漫畫的閱讀進度，iOS / Mac / Android 透過 Firebase 同步。純靜態檔，無需 build。
 
 ## 本機測試
 
@@ -15,7 +15,7 @@ python3 -m http.server 8765
 
 ## 資料結構
 
-`users/{uid}/novels/{id}`：title, author, siteUrl, chapterName, chapterUrl, status(進行/追更/未看/已閱/棄坑；舊值在看/想看/看完會自動轉換), rating(0-5), tags[], note, createdAt, lastReadAt
+`users/{uid}/novels/{id}`：type(小說/漫畫，缺少視為小說), title, author, siteUrl, chapterName, chapterUrl, status(進行/追更/未看/已閱/棄坑；舊值在看/想看/看完會自動轉換), rating(0-5), tags[], note, createdAt, lastReadAt
 
 ## 部署
 

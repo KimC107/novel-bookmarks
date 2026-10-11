@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>小說書簽</title>
+  <title>愛好書簽</title>
   <meta name="theme-color" content="#1f2937">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="小說書簽">
+  <meta name="apple-mobile-web-app-title" content="愛好書簽">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png">
@@ -17,8 +17,8 @@
 <body>
   <!-- 登入畫面 -->
   <section id="loginView" class="login hidden">
-    <h1>📚 小說書簽</h1>
-    <p>管理你想看的小說與閱讀進度</p>
+    <h1>📚 愛好書簽</h1>
+    <p>管理小說與漫畫的閱讀進度</p>
     <button id="loginBtn" class="btn primary">使用 Google 登入</button>
     <p id="loginMsg" class="msg"></p>
   </section>
@@ -26,7 +26,8 @@
   <!-- 主畫面 -->
   <main id="appView" class="hidden">
     <header class="topbar">
-      <h1>📚 小說書簽</h1>
+      <h1>📚 愛好書簽</h1>
+      <div class="seg" id="typeSwitch"></div>
       <div class="topbar-actions">
         <button id="pasteBtn" class="icon-btn" aria-label="從剪貼簿新增" title="從剪貼簿新增">📋</button>
         <button id="menuBtn" class="icon-btn" aria-label="選單">⋯</button>
@@ -47,9 +48,9 @@
     <div id="tagBar" class="tagbar"></div>
 
     <ul id="list" class="list"></ul>
-    <p id="empty" class="empty hidden">這裡還沒有小說</p>
+    <p id="empty" class="empty hidden">這裡還沒有作品</p>
 
-    <button id="addBtn" class="fab" aria-label="新增小說">＋</button>
+    <button id="addBtn" class="fab" aria-label="新增作品">＋</button>
   </main>
 
   <!-- 選單 -->
@@ -65,7 +66,10 @@
   <!-- 新增／編輯 -->
   <dialog id="editDlg">
     <form id="editForm" class="dlg-body">
-      <h2 id="editTitle">新增小說</h2>
+      <h2 id="editTitle">新增作品</h2>
+      <label>類型
+        <select name="type"><option>小說</option><option>漫畫</option></select>
+      </label>
       <label>書名 *<input name="title" required></label>
       <label>作者<input name="author"></label>
       <label>網站連結<input name="siteUrl" type="url" inputmode="url" placeholder="https://"></label>
