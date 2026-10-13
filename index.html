@@ -68,16 +68,16 @@
     <form id="editForm" class="dlg-body">
       <h2 id="editTitle">新增作品</h2>
       <label>類型
-        <select name="type"><option>小說</option><option>漫畫</option></select>
+        <select name="type"><option>小說</option><option>漫畫</option><option>短劇</option></select>
       </label>
       <label>書名 *<input name="title" required></label>
-      <label>作者<input name="author"></label>
-      <label>網站連結<input name="siteUrl" type="url" inputmode="url" placeholder="https://"></label>
-      <label>目前章節名稱<input name="chapterName"></label>
-      <label>章節連結<input name="chapterUrl" type="url" inputmode="url" placeholder="https://"></label>
+      <label data-types="小說,漫畫">作者<input name="author"></label>
+      <label data-types="小說,漫畫">網站連結<input name="siteUrl" type="url" inputmode="url" placeholder="https://"></label>
+      <label data-types="小說,漫畫">目前章節名稱<input name="chapterName"></label>
+      <label data-types="小說,漫畫">章節連結<input name="chapterUrl" type="url" inputmode="url" placeholder="https://"></label>
       <label>狀態
         <select name="status">
-          <option>進行</option><option>追更</option><option>未看</option><option>已閱</option><option>棄坑</option>
+          <!-- 選項由 app.js 依類型產生 -->
         </select>
       </label>
       <label>評分
@@ -110,6 +110,26 @@
         <button type="submit" class="btn primary">儲存</button>
       </div>
     </form>
+  </dialog>
+
+  <!-- 短劇集數清單 -->
+  <dialog id="epDlg">
+    <div class="dlg-body">
+      <div class="row"><h2 id="epTitle" class="spacer"></h2><button type="button" class="btn" data-close>關閉</button></div>
+      <p id="epSummary" class="muted"></p>
+      <ul id="epList" class="ep-list"></ul>
+      <form id="epForm" class="ep-add">
+        <input name="name" placeholder="集數名稱">
+        <input name="url" type="url" inputmode="url" placeholder="https://" required>
+        <button type="submit" class="btn primary">新增</button>
+        <label class="ep-single"><input type="checkbox" name="single"> 單集（只有一集）</label>
+      </form>
+      <details class="ep-bulk">
+        <summary>批次新增（一行一集）</summary>
+        <textarea id="epBulk" rows="5" placeholder="貼上多行連結，每行一集；自動編號成第N集。&#10;行內若有文字，會當作集數名稱。"></textarea>
+        <button type="button" id="epBulkBtn" class="btn primary">批次新增</button>
+      </details>
+    </div>
   </dialog>
 
   <script type="module" src="app.js"></script>
