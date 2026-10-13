@@ -199,6 +199,9 @@ function render() {
       ${n.note ? `<div class="note">${esc(n.note)}</div>` : ""}
       <div class="card-actions">
         <button class="btn primary" data-act="read" ${canRead ? "" : "disabled"}>繼續閱讀</button>
+        ${safeUrl(n.siteUrl)
+          ? `<a class="btn" href="${esc(safeUrl(n.siteUrl))}" target="_blank" rel="noopener">目錄</a>`
+          : '<button class="btn" disabled>目錄</button>'}
         <button class="btn" data-act="progress">更新進度</button>
         <button class="btn" data-act="edit">編輯</button>
       </div>

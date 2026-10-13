@@ -64,6 +64,9 @@ input, select, textarea {
 .btn.danger { color: var(--danger); border-color: var(--danger); }
 .card-actions .btn { flex: 1; padding: 4px; font-size: .85rem; }
 .card-actions .btn.primary { flex: 1.4; }
+/* 目錄是超連結（<a>），置中並去掉底線 */
+.card-actions a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.btn:disabled { opacity: .45; cursor: default; }
 
 .empty, .muted { color: var(--muted); text-align: center; }
 .fab {
