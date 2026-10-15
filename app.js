@@ -224,7 +224,7 @@ function render() {
       <div class="card-actions">
         ${drama
           ? '<button class="btn primary" data-act="eps">集數</button>'
-          : `<button class="btn primary" data-act="read" ${canRead ? "" : "disabled"}>繼續閱讀</button>${toc}<button class="btn" data-act="progress">更新進度</button>`}
+          : `<button class="btn primary" data-act="read" ${canRead ? "" : "disabled"}>繼續閱讀</button>${toc}<button class="btn orange" data-act="progress">更新進度</button>`}
         <button class="btn" data-act="edit">編輯</button>
       </div>
     </li>`;
@@ -292,6 +292,17 @@ $("#deleteBtn").onclick = async () => {
   if (n && confirm(`確定刪除「${n.title}」？`)) { $("#editDlg").close(); await store.remove(n.id); }
 };
 
+// 更新進度：貼上新連結時，章節名稱自動帶入連結最後的數字（例如 ...?chapterNumber=12 → 12）
+// 使用者自己改過名稱後就不再覆蓋；每次開啟視窗會重置
+const pf = $("#progressForm").elements;
+let nameTouched = false;
+pf.chapterName.addEventListener("input", () => { nameTouched = true; });
+pf.chapterUrl.addEventListener("input", () => {
+  if (nameTouched) return;
+  const m = pf.chapterUrl.value.trim().split("#")[0].match(/(\d+)(?!.*\d)/); // 最後一段連續數字（略過 # 之後）
+  pf.chapterName.value = m ? m[1] : "";
+});
+
 $("#progressForm").onsubmit = async (e) => {
   e.preventDefault();
   const f = e.target.elements;
@@ -310,6 +321,7 @@ $("#list").onclick = async (e) => {
     state.progressId = id;
     $("#progressTitle").textContent = `更新進度：${n.title}`;
     $("#progressForm").reset();
+    nameTouched = false;
     $("#progressDlg").showModal();
   }
   if (btn.dataset.act === "eps") { openEpisodes(id); return; }
